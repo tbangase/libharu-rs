@@ -8,3 +8,4 @@ edition = "2018"
 [dependencies]
 libharu-sys = "0.0.1"
 libc = "0.2.100"
+dispose = "0.3.1"
