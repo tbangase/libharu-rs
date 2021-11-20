@@ -1,24 +1,26 @@
-#[derive(Clone)]
-enum VerticalAlignment {
+#[allow(dead_code)]
+#[derive(Clone, Debug)]
+pub enum VerticalAlignment {
     Top,
     Center,
     Bottom,
 }
 
-#[derive(Clone)]
-enum HorizontalAlignment {
+#[allow(dead_code)]
+#[derive(Clone, Debug)]
+pub enum HorizontalAlignment {
     Left,
     Center,
     Right,
     Justify,
 }
 
-#[derive(Clone)]
-struct Alignment {
-    horizontal_align: HorizontalAlignment,
-    vertical_align: VerticalAlignment,
+#[derive(Clone, Debug)]
+pub struct Alignment {
+    pub horizontal_align: HorizontalAlignment,
+    pub vertical_align: VerticalAlignment,
 }
-
+#[allow(dead_code)]
 impl Alignment {
     pub fn center() -> Self {
         Self {

@@ -2,6 +2,7 @@ use libharu_sys::*;
 use libc::c_void;
 //use std::error::Error;
 
+
 pub struct PdfError {
     
 }

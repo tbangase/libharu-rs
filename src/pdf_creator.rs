@@ -164,7 +164,7 @@ impl Rgb {
     }
 
     pub fn from_rgb(r: f32, g: f32, b: f32) -> Self {
-        Self { r: r, g: g, b: b }
+        Self { r, g, b }
     }
 }
 
@@ -198,10 +198,10 @@ impl Padding {
 
     pub fn new(top: f32, bottom: f32, right: f32, left: f32) -> Self {
         Self {
-            top: top,
-            bottom: bottom,
-            right: right,
-            left: left,
+            top,
+            bottom,
+            right,
+            left,
         }
     }
 
@@ -248,9 +248,9 @@ struct Outline {
 impl Outline {
     pub fn new(enable: bool, width: f32, color: Rgb) -> Self {
         let border = Border {
-            enable: enable,
-            width: width,
-            color: color,
+            enable,
+            width,
+            color,
         };
         return Self {
             top: border.clone(),
@@ -385,7 +385,7 @@ impl CustomPdf {
             //HPDF_Page_SetCharSpace(page1, 10.0);
             self.set_text_in_rrect(RRect {
                 page: page1,
-                font: font,
+                font,
                 center_x: A4_WIDTH_LANDSCAPE / 2.0,
                 center_y: A4_HEIGHT_LANDSCAPE / 2.0 + 125.0,
                 width: 160.0,
@@ -406,7 +406,7 @@ impl CustomPdf {
             // 受領書 白枠
             self.set_text_in_rrect(RRect {
                 page: page1,
-                font: font,
+                font,
                 center_x: A4_WIDTH_LANDSCAPE / 2.0,
                 center_y: A4_HEIGHT_LANDSCAPE / 2.0 + 80.0,
                 width: 160.0,
@@ -447,7 +447,7 @@ impl CustomPdf {
             //HPDF_Page_SetTextLeading(page1, 20.0);
             self.set_text_in_rrect(RRect {
                 page: page1,
-                font: font,
+                font,
                 center_x: 100.0,
                 center_y: A4_HEIGHT_LANDSCAPE / 2.0,
                 width: 30.0,
@@ -468,7 +468,7 @@ impl CustomPdf {
             //HPDF_Page_SetTextLeading(page1, 30.0);
             self.set_text_in_rrect(RRect {
                 page: page1,
-                font: font,
+                font,
                 center_x: 150.0,
                 center_y: A4_HEIGHT_LANDSCAPE / 2.0,
                 width: 30.0,
@@ -488,7 +488,7 @@ impl CustomPdf {
 
             self.set_text_in_rrect(RRect {
                 page: page1,
-                font: font,
+                font,
                 center_x: 200.0,
                 center_y: A4_HEIGHT_LANDSCAPE / 2.0,
                 width: 30.0,
@@ -510,7 +510,7 @@ impl CustomPdf {
             // HPDF_Page_SetCharSpace(page1, 0.0);
             self.set_text_in_rrect(RRect {
                 page: page1,
-                font: font,
+                font,
                 center_x: A4_WIDTH_LANDSCAPE * 0.2,
                 center_y: A4_HEIGHT_LANDSCAPE * 0.8,
                 width: 150.0,
@@ -568,7 +568,7 @@ impl CustomPdf {
 
             self.set_table(Table {
                 page: page1,
-                font: font,
+                font,
                 x: A4_WIDTH_LANDSCAPE / 2.0 - 150.0,
                 y: A4_HEIGHT_LANDSCAPE / 2.0 + 30.0,
                 header_alignment: Alignment::center(),
@@ -630,7 +630,7 @@ impl CustomPdf {
 
             self.set_table(Table {
                 page: page1,
-                font: font,
+                font,
                 x: A4_WIDTH_LANDSCAPE / 2.0 - 150.0,
                 y: A4_HEIGHT_LANDSCAPE / 2.0 - 150.0,
                 header_alignment: Alignment::center(),
@@ -690,8 +690,8 @@ impl CustomPdf {
                 body_fill_color: Rgb::white(),
                 header_text_color: Rgb::white(),
                 body_text_color: Rgb::dark_grey(),
-                header_text: header_text,
-                body_text: body_text,
+                header_text,
+                body_text,
                 alt_fill_color: Some(Rgb::from_rgb(0.9, 0.95, 1.0)),
                 ruled_line: Border {
                     enable: true,
@@ -720,17 +720,10 @@ impl CustomPdf {
         // Switch GMODE to PATH_OBJECT
         // Draw RRect from RRect info
         self.set_rrect(rrect.clone());
-        // let mut start_x = rrect.center_x - rrect.width / 2.0 + rrect.cornor_radius;
-        // let mut start_y = rrect.center_y - rrect.height / 2.0 + rrect.cornor_radius;
         let mut rect_width = rrect.width - rrect.cornor_radius * 2.0;
         let mut rect_height = rrect.height - rrect.cornor_radius * 2.0;
-        // HPDF_Page_Rectangle(rrect.page, start_x.clone(), start_y.clone(), rect_width.clone(), rect_height.clone());
 
-        // Stroke or paint the path
-        // Switch GMODE to PAGE_DESCRIPTION
-        // HPDF_Page_FillStroke(rrect.page);
-
-        // テキストをレンダリングする
+        // Rendering Text
         // Switch GMODE to TEXT_OBJECT
         HPDF_Page_BeginText(rrect.page);
 
@@ -745,29 +738,17 @@ impl CustomPdf {
         let txt_color = rrect.text_color;
         HPDF_Page_SetRGBFill(rrect.page, txt_color.r, txt_color.g, txt_color.b);
 
-        // println!("Font Size: {:?}", font_size);
-        // let leading = HPDF_Page_GetTextLeading(rrect.page);
-        // println!("Text Leading: {:?}", leading);
-
         // Show Text
 
         let text_cstring: CString = CString::new(rrect.text.clone()).expect(CSTRING_ERROR_MSG);
         let len: *mut u32 = &mut 0;
-        // HPDF_Page_ShowText(page1, text.as_ptr());
 
         // Textを高さ方向センターに位置づけるための計算
 
-        //let bbox = HPDF_Font_GetBBox(rrect.font);
         // Calculating One line height
         let bbox = HPDF_Font_GetBBox(rrect.font);
-        // let ascent = HPDF_Font_GetAscent(rrect.font) as f32;
-        // let descent = HPDF_Font_GetDescent(rrect.font) as f32;
-        // let cap_height = HPDF_Font_GetCapHeight(rrect.font) as f32;
-        // let line_height = (ascent - descent) * font_size / 1000.0;
         let line_height = ((bbox.top - bbox.bottom) * font_size / 1000.0) + rrect.line_space;
         HPDF_Page_SetTextLeading(rrect.page, line_height);
-        // let leading = HPDF_Page_GetTextLeading(rrect.page);
-        // println!("Set Text Leading: {:?}", leading);
 
         // Calculating Lines
         // 1文字でrect_widthをはみ出す場合に正しく計算できない。
@@ -791,8 +772,6 @@ impl CustomPdf {
         } else {
             line_height
         };
-        // println!("Lines: {:?}", lines);
-        // println!("Line Height: {:?}", line_height);
 
         let box_center = start_y + rect_height / 2.0;
 
@@ -808,13 +787,6 @@ impl CustomPdf {
             HorizontalAlignment::Right => HPDF_TextAlignment::HPDF_TALIGN_RIGHT,
             HorizontalAlignment::Justify => HPDF_TextAlignment::HPDF_TALIGN_JUSTIFY,
         };
-
-        // println!("start height: {:?}", top_y);
-        // println!("start y: {:?}", start_y);
-        // println!("rect width : {:?}", rect_width);
-        // println!("rect height: {:?}", rect_height);
-        // println!("text width : {:?}", text_width);
-        // println!("text height: {:?}", text_height);
 
         HPDF_Page_TextRect(
             rrect.page,
@@ -1138,8 +1110,8 @@ impl CustomPdf {
                     self.set_text_in_rrect(RRect {
                         page: table.page,
                         font: table.font,
-                        center_x: center_x,
-                        center_y: center_y,
+                        center_x,
+                        center_y,
                         width: col_width,
                         height: row_height,
                         horizontal_align: table.header_alignment.horizontal_align.clone(),
@@ -1152,7 +1124,7 @@ impl CustomPdf {
                         padding: Padding::new_vh(2.0, 5.0),
                         line_space: 0.0,
                         wrap: true,
-                        outline: outline,
+                        outline,
                     });
                     center_x += col_width;
                 }
@@ -1189,8 +1161,8 @@ impl CustomPdf {
                     self.set_text_in_rrect(RRect {
                         page: table.page,
                         font: table.font,
-                        center_x: center_x,
-                        center_y: center_y,
+                        center_x,
+                        center_y,
                         width: col_width,
                         height: row_height,
                         horizontal_align: table.body_alignment.horizontal_align.clone(),
