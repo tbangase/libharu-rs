@@ -1,7 +1,10 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub mod alignments;
+pub mod constants;
+pub mod error;
+pub mod pages;
+pub mod colors;
+pub mod padding;
+pub mod components;
+pub mod haru_pdf;
+
+
