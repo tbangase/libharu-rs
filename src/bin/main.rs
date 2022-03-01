@@ -2,8 +2,6 @@ use libharu_rs::{components::rects::Position, haru_pdf::HaruPDF, pages::{ PageSi
 use libharu_rs::components::*;
 
 pub fn main() {
-    println!("Hello, world!");
-
     let mut pdf = HaruPDF::new_doc();
 
     pdf.add_page(PageSize::A4, PageDirection::Landscape);

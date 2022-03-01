@@ -84,11 +84,276 @@ impl RRect {
         self
     }
     pub fn set_rrect_fill(&self, pdf: &mut HaruPDF) {
-        
+        unsafe {
+            if let Some(page) = pdf.current_page {
+                let bg_color = self.bg_color;
+                HPDF_Page_SetCMYKFill(page, bg_color.c, bg_color.m, bg_color.y, bg_color.k);
+                HPDF_Page_SetLineWidth(page, 0.0);
+
+                // 左下の弧
+                if self.cornor_radius > 0.0 {
+                    HPDF_Page_Arc(
+                        page,
+                        self.center_position.x - self.width / 2.0 + self.cornor_radius,
+                        self.center_position.y - self.height / 2.0 + self.cornor_radius,
+                        self.cornor_radius,
+                        180.0,
+                        270.0,
+                    );
+                } else {
+                    HPDF_Page_MoveTo(
+                        page,
+                        self.center_position.x - self.width / 2.0,
+                        self.center_position.y - self.height / 2.0,
+                    );
+                }
+
+                // 左の辺
+                HPDF_Page_LineTo(
+                    page,
+                    self.center_position.x - self.width / 2.0,
+                    self.center_position.y + self.height / 2.0 - self.cornor_radius,
+                );
+
+                // 左上の弧
+                if self.cornor_radius > 0.0 {
+                    HPDF_Page_Arc(
+                        page,
+                        self.center_position.x - self.width / 2.0 + self.cornor_radius,
+                        self.center_position.y + self.height / 2.0 - self.cornor_radius,
+                        self.cornor_radius,
+                        270.0,
+                        360.0,
+                    );
+                }
+
+                // 上の辺
+                HPDF_Page_LineTo(
+                    page,
+                    self.center_position.x + self.width / 2.0 - self.cornor_radius,
+                    self.center_position.y + self.height / 2.0,
+                );
+
+                // 右上の弧
+                if self.cornor_radius > 0.0 {
+                    HPDF_Page_Arc(
+                        page,
+                        self.center_position.x + self.width / 2.0 - self.cornor_radius,
+                        self.center_position.y + self.height / 2.0 - self.cornor_radius,
+                        self.cornor_radius,
+                        0.0,
+                        90.0,
+                    );
+                }
+
+                // 右の辺
+                HPDF_Page_LineTo(
+                    page,
+                    self.center_position.x + self.width / 2.0,
+                    self.center_position.y - self.height / 2.0 + self.cornor_radius,
+                );
+
+                // 右下の弧
+                if self.cornor_radius > 0.0 {
+                    HPDF_Page_Arc(
+                        page,
+                        self.center_position.x + self.width / 2.0 - self.cornor_radius,
+                        self.center_position.y - self.height / 2.0 + self.cornor_radius,
+                        self.cornor_radius,
+                        90.0,
+                        180.0,
+                    );
+                }
+
+                // パスを閉じる
+                HPDF_Page_LineTo(
+                    page,
+                    self.center_position.x - self.width / 2.0 + self.cornor_radius,
+                    self.center_position.y - self.height / 2.0,
+                );
+
+                HPDF_Page_Fill(page);
+            }
+        }
     }
 
     pub fn set_rrect_stroke(&self, pdf: &mut HaruPDF) {
-        
+        unsafe {
+            if let Some(page) = pdf.current_page {
+
+                HPDF_Page_SetLineJoin(page, HPDF_LineJoin::HPDF_ROUND_JOIN);
+                HPDF_Page_SetLineCap(page, HPDF_LineCap::HPDF_ROUND_END);
+
+                let border = self.outline.left.clone();
+                let line_color = border.color;
+                HPDF_Page_SetCMYKFill(page, line_color.c, line_color.m, line_color.y, line_color.k);
+                HPDF_Page_SetLineWidth(page, border.width.clone());
+
+                let width = self.width;
+                let height = self.height;
+
+                // 左下の弧
+                let border = self.outline.left.clone();
+                if self.outline.bottom.enable.clone() && self.outline.left.enable.clone() {
+                    if self.cornor_radius > 0.0 {
+                        HPDF_Page_Arc(
+                            page,
+                            self.center_position.x - width / 2.0 + self.cornor_radius,
+                            self.center_position.y - height / 2.0 + self.cornor_radius,
+                            self.cornor_radius,
+                            180.0,
+                            270.0,
+                        );
+                    } else {
+                        HPDF_Page_MoveTo(
+                            page,
+                            self.center_position.x - width / 2.0,
+                            self.center_position.y - height / 2.0,
+                        );
+                    }
+                } else {
+                    HPDF_Page_MoveTo(
+                        page,
+                        self.center_position.x - width / 2.0,
+                        self.center_position.y - height / 2.0,
+                    );
+                }
+
+                // 左の辺
+                if self.outline.left.enable.clone() {
+                    HPDF_Page_LineTo(
+                        page,
+                        self.center_position.x - width / 2.0,
+                        self.center_position.y + height / 2.0 - self.cornor_radius - border.width / 2.0,
+                    );
+
+                    // 左上の弧
+                    if self.cornor_radius > 0.0 {
+                        HPDF_Page_Arc(
+                            page,
+                            self.center_position.x - width / 2.0 + self.cornor_radius,
+                            self.center_position.y + height / 2.0 - self.cornor_radius,
+                            self.cornor_radius,
+                            270.0,
+                            360.0,
+                        );
+                    }
+                } else {
+                    HPDF_Page_MoveTo(
+                        page,
+                        self.center_position.x - width / 2.0 + self.cornor_radius,
+                        self.center_position.y + height / 2.0,
+                    );
+                }
+
+                // 一度描画して設定し直せるようにする
+                HPDF_Page_Stroke(page);
+
+                let border = self.outline.top.clone();
+                let line_color = border.color;
+                HPDF_Page_SetCMYKFill(page, line_color.c, line_color.m, line_color.y, line_color.k);
+                HPDF_Page_SetLineWidth(page, border.width.clone());
+
+                HPDF_Page_MoveTo(
+                    page,
+                    self.center_position.x - width / 2.0 + self.cornor_radius,
+                    self.center_position.y + height / 2.0,
+                );
+
+                // 上の辺
+                if self.outline.top.enable.clone() {
+                    HPDF_Page_LineTo(
+                        page,
+                        self.center_position.x + width / 2.0 - self.cornor_radius,
+                        self.center_position.y + height / 2.0,
+                    );
+
+                    // 右上の弧
+                    if self.cornor_radius > 0.0 {
+                        HPDF_Page_Arc(
+                            page,
+                            self.center_position.x + width / 2.0 - self.cornor_radius,
+                            self.center_position.y + height / 2.0 - self.cornor_radius,
+                            self.cornor_radius,
+                            0.0,
+                            90.0,
+                        );
+                    }
+                } else {
+                    HPDF_Page_MoveTo(
+                        page,
+                        self.center_position.x + width / 2.0,
+                        self.center_position.y + height / 2.0 - self.cornor_radius,
+                    );
+                }
+
+                // 一度描画して設定し直せるようにする
+                HPDF_Page_Stroke(page);
+
+                let border = self.outline.right.clone();
+                let line_color = border.color;
+                HPDF_Page_SetCMYKFill(page, line_color.c, line_color.m, line_color.y, line_color.k);
+                HPDF_Page_SetLineWidth(page, border.width.clone());
+
+                HPDF_Page_MoveTo(
+                    page,
+                    self.center_position.x + width / 2.0,
+                    self.center_position.y + height / 2.0 - self.cornor_radius,
+                );
+
+                // 右の辺
+                if self.outline.right.enable.clone() {
+                    HPDF_Page_LineTo(
+                        page,
+                        self.center_position.x + width / 2.0,
+                        self.center_position.y - height / 2.0 + self.cornor_radius,
+                    );
+
+                    // 右下の弧
+                    if self.cornor_radius > 0.0 {
+                        HPDF_Page_Arc(
+                            page,
+                            self.center_position.x + width / 2.0 - self.cornor_radius,
+                            self.center_position.y - height / 2.0 + self.cornor_radius,
+                            self.cornor_radius,
+                            90.0,
+                            180.0,
+                        );
+                    }
+                } else {
+                    HPDF_Page_MoveTo(
+                        page,
+                        self.center_position.x + width / 2.0 - self.cornor_radius,
+                        self.center_position.y - height / 2.0,
+                    );
+                }
+
+                // 一度描画して設定し直せるようにする
+                HPDF_Page_Stroke(page);
+
+                let border = self.outline.bottom.clone();
+
+                // パスを閉じる
+                if border.enable.clone() {
+                    let line_color = border.color;
+                    HPDF_Page_SetCMYKFill(page, line_color.c, line_color.m, line_color.y, line_color.k);
+                    HPDF_Page_SetLineWidth(page, border.width.clone());
+                    HPDF_Page_MoveTo(
+                        page,
+                        self.center_position.x + width / 2.0 - self.cornor_radius,
+                        self.center_position.y - height / 2.0,
+                    );
+
+                    HPDF_Page_LineTo(
+                        page,
+                        self.center_position.x - width / 2.0 + self.cornor_radius,
+                        self.center_position.y - height / 2.0,
+                    );
+
+                    HPDF_Page_Stroke(page);
+                }
+            }
+        }
     }
 }
 
@@ -96,7 +361,6 @@ impl PdfComponent for RRect {
     fn draw(&self, pdf: &mut HaruPDF) {
         unsafe {
             if let Some(page) = pdf.current_page {
-
                 // Set Graphic States
 
                 // Start new path

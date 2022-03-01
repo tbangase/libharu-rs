@@ -2,9 +2,9 @@ use crate::colors::Cmyk;
 
 #[derive(Clone, Debug)]
 pub struct Border {
-    enable: bool,
-    width: f32,
-    color: Cmyk,
+    pub enable: bool,
+    pub width: f32,
+    pub color: Cmyk,
 }
 
 impl Border {
@@ -21,10 +21,10 @@ impl Border {
 
 #[derive(Clone, Debug)]
 pub struct Outline {
-    top: Border,
-    bottom: Border,
-    left: Border,
-    right: Border,
+    pub top: Border,
+    pub bottom: Border,
+    pub left: Border,
+    pub right: Border,
 }
 
 #[allow(dead_code)]

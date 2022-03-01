@@ -30,12 +30,15 @@ impl HaruPDF {
             let pdf_error = PdfError::error_handler;
             let doc: HPDF_Doc = HPDF_New(pdf_error, null_pointer.clone());
 
-            let font_name = CString::new("MS-Gothic").expect(CSTRING_ERROR_MSG);
-            let encoding_name = CString::new("90ms-RKSJ-H").expect(CSTRING_ERROR_MSG);
+            HPDF_UseJPFonts(doc);
 
-            HPDF_SetCurrentEncoder(doc, encoding_name.as_ptr());
+            let font_name = CString::new("MS-Gothic").expect(CSTRING_ERROR_MSG);
+            let encoding_name = CString::new("UTF-8").expect(CSTRING_ERROR_MSG);
 
             let font = HPDF_GetFont(doc, font_name.as_ptr(), encoding_name.as_ptr());
+
+            println!("Set MS-Gothic Font");
+
             return Self {
                 doc,
                 current_page: None,
