@@ -1,5 +1,5 @@
-use libharu_rs::{components::rects::Position, haru_pdf::HaruPDF, pages::{ PageSize, PageDirection}};
-use libharu_rs::components::*;
+use libharu::{components::rects::Position, haru_pdf::HaruPDF, pages::{ PageSize, PageDirection}};
+use libharu::components::*;
 
 pub fn main() {
     let mut pdf = HaruPDF::new_doc();

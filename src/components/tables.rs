@@ -3,6 +3,7 @@ use crate::alignments::Alignment;
 use crate::colors::Cmyk;
 use crate::components::borders::Border;
 
+#[allow(dead_code)]
 #[derive(Clone)]
 struct Table {
     x: f32,
