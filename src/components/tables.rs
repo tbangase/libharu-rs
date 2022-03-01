@@ -145,6 +145,8 @@ impl PdfComponent for Table {
         }
         
 
+        println!("{:?}", center_x);
+        println!("{:?}", center_y);
         println!("{:?}", pdf);
         println!("Now Rendering...");
     }
