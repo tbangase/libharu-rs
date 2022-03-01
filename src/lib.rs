@@ -6,5 +6,6 @@ pub mod colors;
 pub mod padding;
 pub mod components;
 pub mod haru_pdf;
+pub mod entities;
 
 
