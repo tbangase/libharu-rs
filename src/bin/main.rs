@@ -1,4 +1,10 @@
-use libharu::{components::rects::Position, haru_pdf::HaruPDF, pages::{ PageSize, PageDirection}};
+use libharu::{
+    haru_pdf::HaruPDF, 
+    pages::{ 
+        PageSize, PageDirection
+    }
+};
+use libharu::entities::Position;
 use libharu::components::*;
 
 pub fn main() {

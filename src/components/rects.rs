@@ -1,3 +1,4 @@
+use crate::entities::Position;
 use crate::alignments::Alignment;
 use crate::colors::Cmyk;
 use crate::constants::CSTRING_ERROR_MSG;
@@ -10,19 +11,20 @@ use std::ffi::CString;
 
 use super::PdfComponent;
 
-#[derive(Clone, Debug)]
-pub struct Position {
-    x: f32, y:f32
-}
-
-impl Position {
-    pub fn new(x: f32, y: f32) -> Self {
-        Self {
-            x, y
-        }
-    }
-}
-
+/// Generator For Rounded Rectangle.
+/// ## Usage
+/// 1. Construct RRect structure
+/// 2. Set values 
+/// 3. Call `draw` methos.
+/// ## Default value of constructor
+/// Center Position: (100.0, 100.0)
+/// Width: 200.0, Height: 200.0
+/// Alignment: Center
+/// cornor_radius: 5.0
+/// Text: ""
+/// Text Color: Dark Gray 
+/// Font Size: 10.0
+/// ... and so on. TODO
 #[derive(Clone, Debug)]
 pub struct RRect {
     center_position: Position,
@@ -42,14 +44,12 @@ pub struct RRect {
 
 impl RRect {
     pub fn new() -> Self {
-        let center_position = Position {
-            x: 100.0, y: 100.0
-        };
+        let center_position = Position::new(100.0, 100.0);
         let width = 200.0;
         let height = 200.0;
         let alignment = Alignment::center();
         let cornor_radius = 5.0;
-        let text = "Hello, World!".to_string();
+        let text = "".to_string();
         let text_color = Cmyk::dark_grey();
         let font_size = 10.0;
         let bg_color = Cmyk::black();
@@ -83,6 +83,32 @@ impl RRect {
         self.text = text;
         self
     }
+
+    pub fn set_text_color(mut self, color: Cmyk) -> Self {
+        self.text_color = color;
+        self
+    }
+
+    pub fn set_bg_color(mut self, color: Cmyk) -> Self {
+        self.bg_color = color;
+        self
+    }
+
+    pub fn set_alignment(mut self, alignment: Alignment) -> Self {
+        self.alignment = alignment;
+        self
+    }
+
+    pub fn set_outline(mut self, outline: Outline) -> Self {
+        self.outline = outline;
+        self
+    }
+
+    pub fn set_padding(mut self, padding: Padding) -> Self {
+        self.padding = padding;
+        self
+    }
+
     pub fn set_rrect_fill(&self, pdf: &mut HaruPDF) {
         unsafe {
             if let Some(page) = pdf.current_page {
@@ -94,8 +120,8 @@ impl RRect {
                 if self.cornor_radius > 0.0 {
                     HPDF_Page_Arc(
                         page,
-                        self.center_position.x - self.width / 2.0 + self.cornor_radius,
-                        self.center_position.y - self.height / 2.0 + self.cornor_radius,
+                        self.center_position.x() - self.width / 2.0 + self.cornor_radius,
+                        self.center_position.y() - self.height / 2.0 + self.cornor_radius,
                         self.cornor_radius,
                         180.0,
                         270.0,
@@ -103,24 +129,24 @@ impl RRect {
                 } else {
                     HPDF_Page_MoveTo(
                         page,
-                        self.center_position.x - self.width / 2.0,
-                        self.center_position.y - self.height / 2.0,
+                        self.center_position.x() - self.width / 2.0,
+                        self.center_position.y() - self.height / 2.0,
                     );
                 }
 
                 // 左の辺
                 HPDF_Page_LineTo(
                     page,
-                    self.center_position.x - self.width / 2.0,
-                    self.center_position.y + self.height / 2.0 - self.cornor_radius,
+                    self.center_position.x() - self.width / 2.0,
+                    self.center_position.y() + self.height / 2.0 - self.cornor_radius,
                 );
 
                 // 左上の弧
                 if self.cornor_radius > 0.0 {
                     HPDF_Page_Arc(
                         page,
-                        self.center_position.x - self.width / 2.0 + self.cornor_radius,
-                        self.center_position.y + self.height / 2.0 - self.cornor_radius,
+                        self.center_position.x() - self.width / 2.0 + self.cornor_radius,
+                        self.center_position.y() + self.height / 2.0 - self.cornor_radius,
                         self.cornor_radius,
                         270.0,
                         360.0,
@@ -130,16 +156,16 @@ impl RRect {
                 // 上の辺
                 HPDF_Page_LineTo(
                     page,
-                    self.center_position.x + self.width / 2.0 - self.cornor_radius,
-                    self.center_position.y + self.height / 2.0,
+                    self.center_position.x() + self.width / 2.0 - self.cornor_radius,
+                    self.center_position.y() + self.height / 2.0,
                 );
 
                 // 右上の弧
                 if self.cornor_radius > 0.0 {
                     HPDF_Page_Arc(
                         page,
-                        self.center_position.x + self.width / 2.0 - self.cornor_radius,
-                        self.center_position.y + self.height / 2.0 - self.cornor_radius,
+                        self.center_position.x() + self.width / 2.0 - self.cornor_radius,
+                        self.center_position.y() + self.height / 2.0 - self.cornor_radius,
                         self.cornor_radius,
                         0.0,
                         90.0,
@@ -149,16 +175,16 @@ impl RRect {
                 // 右の辺
                 HPDF_Page_LineTo(
                     page,
-                    self.center_position.x + self.width / 2.0,
-                    self.center_position.y - self.height / 2.0 + self.cornor_radius,
+                    self.center_position.x() + self.width / 2.0,
+                    self.center_position.y() - self.height / 2.0 + self.cornor_radius,
                 );
 
                 // 右下の弧
                 if self.cornor_radius > 0.0 {
                     HPDF_Page_Arc(
                         page,
-                        self.center_position.x + self.width / 2.0 - self.cornor_radius,
-                        self.center_position.y - self.height / 2.0 + self.cornor_radius,
+                        self.center_position.x() + self.width / 2.0 - self.cornor_radius,
+                        self.center_position.y() - self.height / 2.0 + self.cornor_radius,
                         self.cornor_radius,
                         90.0,
                         180.0,
@@ -168,8 +194,8 @@ impl RRect {
                 // パスを閉じる
                 HPDF_Page_LineTo(
                     page,
-                    self.center_position.x - self.width / 2.0 + self.cornor_radius,
-                    self.center_position.y - self.height / 2.0,
+                    self.center_position.x() - self.width / 2.0 + self.cornor_radius,
+                    self.center_position.y() - self.height / 2.0,
                 );
 
                 HPDF_Page_Fill(page);
@@ -198,8 +224,8 @@ impl RRect {
                     if self.cornor_radius > 0.0 {
                         HPDF_Page_Arc(
                             page,
-                            self.center_position.x - width / 2.0 + self.cornor_radius,
-                            self.center_position.y - height / 2.0 + self.cornor_radius,
+                            self.center_position.x() - width / 2.0 + self.cornor_radius,
+                            self.center_position.y() - height / 2.0 + self.cornor_radius,
                             self.cornor_radius,
                             180.0,
                             270.0,
@@ -207,15 +233,15 @@ impl RRect {
                     } else {
                         HPDF_Page_MoveTo(
                             page,
-                            self.center_position.x - width / 2.0,
-                            self.center_position.y - height / 2.0,
+                            self.center_position.x() - width / 2.0,
+                            self.center_position.y() - height / 2.0,
                         );
                     }
                 } else {
                     HPDF_Page_MoveTo(
                         page,
-                        self.center_position.x - width / 2.0,
-                        self.center_position.y - height / 2.0,
+                        self.center_position.x() - width / 2.0,
+                        self.center_position.y() - height / 2.0,
                     );
                 }
 
@@ -223,16 +249,16 @@ impl RRect {
                 if self.outline.left.enable.clone() {
                     HPDF_Page_LineTo(
                         page,
-                        self.center_position.x - width / 2.0,
-                        self.center_position.y + height / 2.0 - self.cornor_radius - border.width / 2.0,
+                        self.center_position.x() - width / 2.0,
+                        self.center_position.y() + height / 2.0 - self.cornor_radius - border.width / 2.0,
                     );
 
                     // 左上の弧
                     if self.cornor_radius > 0.0 {
                         HPDF_Page_Arc(
                             page,
-                            self.center_position.x - width / 2.0 + self.cornor_radius,
-                            self.center_position.y + height / 2.0 - self.cornor_radius,
+                            self.center_position.x() - width / 2.0 + self.cornor_radius,
+                            self.center_position.y() + height / 2.0 - self.cornor_radius,
                             self.cornor_radius,
                             270.0,
                             360.0,
@@ -241,8 +267,8 @@ impl RRect {
                 } else {
                     HPDF_Page_MoveTo(
                         page,
-                        self.center_position.x - width / 2.0 + self.cornor_radius,
-                        self.center_position.y + height / 2.0,
+                        self.center_position.x() - width / 2.0 + self.cornor_radius,
+                        self.center_position.y() + height / 2.0,
                     );
                 }
 
@@ -256,24 +282,24 @@ impl RRect {
 
                 HPDF_Page_MoveTo(
                     page,
-                    self.center_position.x - width / 2.0 + self.cornor_radius,
-                    self.center_position.y + height / 2.0,
+                    self.center_position.x() - width / 2.0 + self.cornor_radius,
+                    self.center_position.y() + height / 2.0,
                 );
 
                 // 上の辺
                 if self.outline.top.enable.clone() {
                     HPDF_Page_LineTo(
                         page,
-                        self.center_position.x + width / 2.0 - self.cornor_radius,
-                        self.center_position.y + height / 2.0,
+                        self.center_position.x() + width / 2.0 - self.cornor_radius,
+                        self.center_position.y() + height / 2.0,
                     );
 
                     // 右上の弧
                     if self.cornor_radius > 0.0 {
                         HPDF_Page_Arc(
                             page,
-                            self.center_position.x + width / 2.0 - self.cornor_radius,
-                            self.center_position.y + height / 2.0 - self.cornor_radius,
+                            self.center_position.x() + width / 2.0 - self.cornor_radius,
+                            self.center_position.y() + height / 2.0 - self.cornor_radius,
                             self.cornor_radius,
                             0.0,
                             90.0,
@@ -282,8 +308,8 @@ impl RRect {
                 } else {
                     HPDF_Page_MoveTo(
                         page,
-                        self.center_position.x + width / 2.0,
-                        self.center_position.y + height / 2.0 - self.cornor_radius,
+                        self.center_position.x() + width / 2.0,
+                        self.center_position.y() + height / 2.0 - self.cornor_radius,
                     );
                 }
 
@@ -297,24 +323,24 @@ impl RRect {
 
                 HPDF_Page_MoveTo(
                     page,
-                    self.center_position.x + width / 2.0,
-                    self.center_position.y + height / 2.0 - self.cornor_radius,
+                    self.center_position.x() + width / 2.0,
+                    self.center_position.y() + height / 2.0 - self.cornor_radius,
                 );
 
                 // 右の辺
                 if self.outline.right.enable.clone() {
                     HPDF_Page_LineTo(
                         page,
-                        self.center_position.x + width / 2.0,
-                        self.center_position.y - height / 2.0 + self.cornor_radius,
+                        self.center_position.x() + width / 2.0,
+                        self.center_position.y() - height / 2.0 + self.cornor_radius,
                     );
 
                     // 右下の弧
                     if self.cornor_radius > 0.0 {
                         HPDF_Page_Arc(
                             page,
-                            self.center_position.x + width / 2.0 - self.cornor_radius,
-                            self.center_position.y - height / 2.0 + self.cornor_radius,
+                            self.center_position.x() + width / 2.0 - self.cornor_radius,
+                            self.center_position.y() - height / 2.0 + self.cornor_radius,
                             self.cornor_radius,
                             90.0,
                             180.0,
@@ -323,8 +349,8 @@ impl RRect {
                 } else {
                     HPDF_Page_MoveTo(
                         page,
-                        self.center_position.x + width / 2.0 - self.cornor_radius,
-                        self.center_position.y - height / 2.0,
+                        self.center_position.x() + width / 2.0 - self.cornor_radius,
+                        self.center_position.y() - height / 2.0,
                     );
                 }
 
@@ -340,14 +366,14 @@ impl RRect {
                     HPDF_Page_SetLineWidth(page, border.width.clone());
                     HPDF_Page_MoveTo(
                         page,
-                        self.center_position.x + width / 2.0 - self.cornor_radius,
-                        self.center_position.y - height / 2.0,
+                        self.center_position.x() + width / 2.0 - self.cornor_radius,
+                        self.center_position.y() - height / 2.0,
                     );
 
                     HPDF_Page_LineTo(
                         page,
-                        self.center_position.x - width / 2.0 + self.cornor_radius,
-                        self.center_position.y - height / 2.0,
+                        self.center_position.x() - width / 2.0 + self.cornor_radius,
+                        self.center_position.y() - height / 2.0,
                     );
 
                     HPDF_Page_Stroke(page);
@@ -376,8 +402,8 @@ impl PdfComponent for RRect {
                 // Switch GMODE to TEXT_OBJECT
                 HPDF_Page_BeginText(page);
 
-                let start_x = self.center_position.x - self.width / 2.0 + self.padding.left;
-                let start_y = self.center_position.y - self.height / 2.0 + self.padding.bottom;
+                let start_x = self.center_position.x() - self.width / 2.0 + self.padding.left;
+                let start_y = self.center_position.y() - self.height / 2.0 + self.padding.bottom;
                 rect_width += self.cornor_radius * 2.0 - self.padding.left - self.padding.right;
                 rect_height += self.cornor_radius * 2.0 - self.padding.top - self.padding.bottom;
 
